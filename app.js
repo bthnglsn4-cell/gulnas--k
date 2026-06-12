@@ -264,39 +264,7 @@ const defaultDocuments = [
     { id: "doc-11", employeeId: "emp-5", type: "Sağlık Raporu", fileName: "can_isg_saglik_raporu.pdf", expiryDate: getFutureDate(25) } // 25 gün kaldı
 ];
 
-const defaultLeaveRequests = [
-    {
-        id: "leave-req-1",
-        employeeId: "emp-3",
-        employeeName: "Ayşe Kaya",
-        type: "Yıllık İzin",
-        startDate: getPastDate(2),
-        endDate: getFutureDate(5),
-        desc: "Yaz dönemi yıllık izin kullanımı.",
-        status: "approved",
-        approvedBy: "Admin"
-    },
-    {
-        id: "leave-req-2",
-        employeeId: "emp-1",
-        employeeName: "Ahmet Yılmaz",
-        type: "Raporlu/Sağlık",
-        startDate: getFutureDate(10),
-        endDate: getFutureDate(14),
-        desc: "Planlı ufak cerrahi operasyon mazeretiyle sağlık izni.",
-        status: "pending"
-    },
-    {
-        id: "leave-req-3",
-        employeeId: "emp-4",
-        employeeName: "Fatma Şahin",
-        type: "Yıllık İzin",
-        startDate: getFutureDate(20),
-        endDate: getFutureDate(25),
-        desc: "Aile ziyareti için izin talebi.",
-        status: "pending"
-    }
-];
+const defaultLeaveRequests = [];
 
 // Varsayılan Yönetici Profili
 const defaultManager = {
@@ -443,7 +411,43 @@ function updateCloudStatusUI(status) {
         }
     }
 }
+function cleanupOrphanedData() {
+    if (!state.employees || state.employees.length === 0) {
+        return;
+    }
+    const validEmpIds = state.employees.map(e => e.id);
+    let changed = false;
+
+    // Clean documents
+    const docCountBefore = state.documents.length;
+    state.documents = state.documents.filter(doc => validEmpIds.includes(doc.employeeId));
+    if (state.documents.length !== docCountBefore) {
+        changed = true;
+    }
+
+    // Clean attendance
+    Object.keys(state.attendance).forEach(empId => {
+        if (!validEmpIds.includes(empId)) {
+            delete state.attendance[empId];
+            changed = true;
+        }
+    });
+
+    // Clean leave requests
+    const leaveCountBefore = state.leaveRequests.length;
+    state.leaveRequests = state.leaveRequests.filter(req => validEmpIds.includes(req.employeeId));
+    if (state.leaveRequests.length !== leaveCountBefore) {
+        changed = true;
+    }
+
+    if (changed) {
+        console.log("Cleanup: Deleted orphaned data for non-existent employees");
+        saveState();
+    }
+}
+
 function refreshAllUI() {
+    cleanupOrphanedData();
     updateHeaderManagerInfo();
     applyRoleRestrictions();
     renderDashboard();
@@ -1411,7 +1415,18 @@ function getAttendanceInfo(empId, dateStr) {
 // --- PUANTAJ VARSAYILAN VERİ ÜRETİMİ ---
 function initPuantajDefaultData() {
     const daysInMonth = new Date(currentPuantajYear, currentPuantajMonth + 1, 0).getDate();
+    const firstDayStr = `${currentPuantajYear}-${String(currentPuantajMonth + 1).padStart(2, '0')}-01`;
+    const lastDayStr = `${currentPuantajYear}-${String(currentPuantajMonth + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+    
     state.employees.forEach(emp => {
+        const hireDate = emp.hireDate || "";
+        const termDate = emp.terminationDate || "";
+        const wasEmployed = (hireDate <= lastDayStr) && (emp.status !== "passive" || !termDate || termDate >= firstDayStr);
+        
+        if (!wasEmployed) {
+            return;
+        }
+        
         if (!state.attendance[emp.id]) {
             state.attendance[emp.id] = {};
         }
@@ -1446,9 +1461,15 @@ function showEmployeeInMonth(emp, year, month) {
     // Ve durumu pasif değilse, ya da pasifse işten çıkış tarihi seçilen ayın ilk gününden büyük veya eşit olmalı
     const wasEmployed = (hireDate <= lastDayStr) && (emp.status !== "passive" || !termDate || termDate >= firstDayStr);
     
-    // Güvenlik önlemi: Eğer çalışanın o aya ait herhangi bir puantaj kaydı varsa da göster
+    // Güvenlik önlemi: Eğer çalışanın o aya ait gerçek (boş olmayan) bir puantaj kaydı varsa göster
     const currentMonthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const hasAttendance = state.attendance[emp.id] && Object.keys(state.attendance[emp.id]).some(dateStr => dateStr.startsWith(currentMonthPrefix));
+    const hasAttendance = state.attendance[emp.id] && Object.entries(state.attendance[emp.id]).some(([dateStr, record]) => {
+        if (!dateStr.startsWith(currentMonthPrefix)) return false;
+        if (typeof record === "string") {
+            return record.trim() !== "";
+        }
+        return (record.status && record.status.trim() !== "") || (record.overtimeHours && record.overtimeHours > 0);
+    });
     
     return wasEmployed || hasAttendance;
 }
@@ -2482,26 +2503,43 @@ function renderLeaveRequests() {
             typeBadgeStyle = "background: rgba(0, 242, 254, 0.15); color: #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; width: fit-content;";
         }
 
+        const deleteButtonHtml = role === "admin" ? `
+            <button class="btn-icon-action btn-reject" onclick="deleteLeaveRequest('${req.id}')" title="Talebi Sil" style="background: rgba(255, 88, 88, 0.1); color: #ff5858; border-color: rgba(255, 88, 88, 0.2); margin-left: 8px;">
+                <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.5;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+        ` : "";
+
         let statusHtml = "";
         if (req.status === "pending") {
             if (role === "employee") {
                 statusHtml = `<span class="status-text-badge status-pending">Onay Bekliyor</span>`;
             } else {
                 statusHtml = `
-                    <div class="request-actions">
+                    <div class="request-actions" style="display:flex; align-items:center; gap:6px;">
                         <button class="btn-icon-action btn-approve" onclick="handleLeaveStatus('${req.id}', 'approved')" title="Talebi Onayla">
                             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                         </button>
                         <button class="btn-icon-action btn-reject" onclick="handleLeaveStatus('${req.id}', 'rejected')" title="Talebi Reddet">
                             <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
+                        ${deleteButtonHtml}
                     </div>
                 `;
             }
         } else if (req.status === "approved") {
-            statusHtml = `<span class="status-text-badge status-approved">Onaylandı</span>`;
+            statusHtml = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="status-text-badge status-approved">Onaylandı</span>
+                    ${deleteButtonHtml}
+                </div>
+            `;
         } else {
-            statusHtml = `<span class="status-text-badge status-rejected">Reddedildi</span>`;
+            statusHtml = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="status-text-badge status-rejected">Reddedildi</span>
+                    ${deleteButtonHtml}
+                </div>
+            `;
         }
 
         let approverHtml = "";
@@ -2556,6 +2594,23 @@ function renderLeaveRequests() {
         listContainer.insertAdjacentHTML("beforeend", cardHtml);
     });
 }
+
+function deleteLeaveRequest(reqId) {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee") {
+        alert("Hata: Bu işlemi gerçekleştirmek için yetkiniz bulunmuyor!");
+        return;
+    }
+    const confirmDelete = confirm("Bu izin talebini kalıcı olarak silmek istediğinize emin misiniz?");
+    if (!confirmDelete) return;
+
+    state.leaveRequests = state.leaveRequests.filter(r => r.id !== reqId);
+    saveState();
+    renderLeaveRequests();
+    renderDashboard();
+    renderIzinModule();
+}
+window.deleteLeaveRequest = deleteLeaveRequest;
 
 function handleLeaveStatus(reqId, status) {
     const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
