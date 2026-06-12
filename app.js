@@ -753,12 +753,23 @@ function renderAnnouncements() {
         return;
     }
     
-    const reversed = [...state.announcements].reverse();
-    reversed.forEach((ann, idx) => {
-        const isLast = idx === reversed.length - 1;
+    const sorted = [...state.announcements].sort((a, b) => {
+        const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+        const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+        return numB - numA;
+    });
+    sorted.forEach((ann, idx) => {
+        const isLast = idx === sorted.length - 1;
         const borderStyle = isLast ? "" : "border-bottom:1px solid var(--border-color);padding-bottom:12px;";
         const dateStr = ann.date ? new Date(ann.date).toLocaleDateString("tr-TR") : "";
         const publisherStr = ann.publisher || "Admin";
+        
+        const deleteButtonHtml = role === "admin" ? `
+            <button class="btn-danger-outline" onclick="deleteAnnouncement('${ann.id}')" style="padding: 2px 6px; font-size: 10px; height: auto; min-height: auto; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(255,88,88,0.2); color: #ff5858; cursor: pointer;">
+                <svg viewBox="0 0 24 24" style="width:10px; height:10px; fill:none; stroke:currentColor; stroke-width:2.5;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Sil
+            </button>
+        ` : "";
         
         listContainer.insertAdjacentHTML("beforeend", `
             <div style="${borderStyle}">
@@ -766,12 +777,26 @@ function renderAnnouncements() {
                 <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;line-height:1.5;">${ann.content}</p>
                 <div style="font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
                     <span>Yayınlayan: <strong>${publisherStr}</strong></span>
-                    <span>${dateStr}</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>${dateStr}</span>
+                        ${deleteButtonHtml}
+                    </div>
                 </div>
             </div>
         `);
     });
 }
+
+function deleteAnnouncement(annId) {
+    const confirmDelete = confirm("Bu duyuruyu silmek istediğinize emin misiniz?");
+    if (!confirmDelete) return;
+    
+    state.announcements = state.announcements.filter(a => a.id !== annId);
+    saveState();
+    renderAnnouncements();
+}
+window.deleteAnnouncement = deleteAnnouncement;
+
 
 document.addEventListener("DOMContentLoaded", () => {
     // Supabase startup
