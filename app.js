@@ -572,11 +572,11 @@ function stopRealTimeSync() {
         supabaseChannel = null;
     }
 }
-
 async function syncCollection(tableName, localArray) {
-    if (localArray.length === 0) return;
-    const { error: upsertError } = await supabaseClient.from(tableName).upsert(localArray);
-    if (upsertError) throw upsertError;
+    if (localArray.length > 0) {
+        const { error: upsertError } = await supabaseClient.from(tableName).upsert(localArray);
+        if (upsertError) throw upsertError;
+    }
     
     const { data, error: fetchError } = await supabaseClient.from(tableName).select('id');
     if (fetchError) throw fetchError;
@@ -588,7 +588,6 @@ async function syncCollection(tableName, localArray) {
         if (deleteError) throw deleteError;
     }
 }
-
 async function syncAttendance() {
     const attendanceList = Object.entries(state.attendance).map(([empId, records]) => ({
         employeeId: empId,
