@@ -903,8 +903,8 @@ function handleLogin(e) {
 
     // 1. Check Super Admin login
     const manager = state.manager || defaultManager;
-    const managerUsername = String(manager.username || '').trim().toLowerCase();
-    const managerPassword = String(manager.password || '').trim();
+    const managerUsername = String(manager.username || defaultManager.username).trim().toLowerCase();
+    const managerPassword = String(manager.password || defaultManager.password).trim();
 
     if (userVal === managerUsername && passVal === managerPassword) {
         sessionStorage.setItem("gl_logged_in", "true");
