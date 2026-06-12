@@ -1,5 +1,23 @@
 // GÜLNAS İK - Uygulama Mantığı (app.js)
 
+// --- GLOBAL DIAGNOSTIC ERROR BOUNDARY ---
+window.addEventListener("error", (e) => {
+    const errorBanner = document.createElement("div");
+    errorBanner.style.position = "fixed";
+    errorBanner.style.top = "0";
+    errorBanner.style.left = "0";
+    errorBanner.style.width = "100%";
+    errorBanner.style.background = "#ff5858";
+    errorBanner.style.color = "white";
+    errorBanner.style.padding = "15px";
+    errorBanner.style.zIndex = "99999999";
+    errorBanner.style.fontSize = "14px";
+    errorBanner.style.fontFamily = "monospace";
+    errorBanner.style.boxShadow = "0 2px 10px rgba(0,0,0,0.5)";
+    errorBanner.innerHTML = `<strong>[HATA]</strong> ${e.message} <br> Dosya: ${e.filename} <br> Satır: ${e.lineno}:${e.colno}`;
+    document.body.appendChild(errorBanner);
+});
+
 // --- OTOMATİK BULUT SENKRONİZASYONU AYARLARI ---
 const AUTO_SUPABASE_URL = "https://hzmxcntpvcyybocpjsrc.supabase.co";
 const AUTO_SUPABASE_KEY = "sb_publishable_Vu9HIEiTeq8xFKv2JIeoEA_kEo92mnH"; // Lütfen bu tırnakların arasına Supabase Anon Key'inizi yapıştırın.
