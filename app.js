@@ -2569,7 +2569,6 @@ function handleLeaveStatus(reqId, status) {
     req.status = status;
 
     // Save who approved/rejected the request
-    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
     const empId = sessionStorage.getItem("gl_logged_employee_id");
     let approverStr = "Admin";
     if (empId) {
