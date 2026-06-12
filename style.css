@@ -2121,6 +2121,19 @@ body.light-theme .cloud-status-btn:hover {
 }
 
 /* ==========================================================================
+   DESKTOP SAFEGUARDS (min-width: 769px) - Hide mobile elements on desktop
+   ========================================================================== */
+@media (min-width: 769px) {
+    .mobile-bottom-nav,
+    .mobile-fab,
+    .mobile-dashboard-greeting,
+    .mobile-header-logo,
+    #view-profil {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
    MOBILE PREMIUM DESIGN SYSTEM (max-width: 768px)
    ========================================================================== */
 @media (max-width: 768px) {
