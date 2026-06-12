@@ -902,7 +902,11 @@ function handleLogin(e) {
     const errorMsg = document.getElementById("login-error-msg");
 
     // 1. Check Super Admin login
-    if (userVal === state.manager.username.toLowerCase() && passVal === state.manager.password) {
+    const manager = state.manager || defaultManager;
+    const managerUsername = String(manager.username || '').trim().toLowerCase();
+    const managerPassword = String(manager.password || '').trim();
+
+    if (userVal === managerUsername && passVal === managerPassword) {
         sessionStorage.setItem("gl_logged_in", "true");
         sessionStorage.setItem("gl_logged_in_role", "admin");
         sessionStorage.removeItem("gl_logged_employee_id");
@@ -973,11 +977,12 @@ function updateHeaderManagerInfo() {
         }
     }
     
-    const fullName = `${state.manager.name} ${state.manager.lastname}`;
-    document.getElementById("header-user-name").textContent = fullName;
-    document.getElementById("header-user-role").textContent = state.manager.role;
-    if (state.manager.avatar) {
-        document.getElementById("header-avatar").src = state.manager.avatar;
+    const manager = state.manager || defaultManager;
+    const fullName = `${manager.name || ''} ${manager.lastname || ''}`;
+    document.getElementById("header-user-name").textContent = fullName.trim() || "Yönetici";
+    document.getElementById("header-user-role").textContent = manager.role || "İK Yöneticisi";
+    if (manager.avatar) {
+        document.getElementById("header-avatar").src = manager.avatar;
     }
 }
 
@@ -1187,12 +1192,13 @@ function updateMobileProfileView() {
             mobileProfileRole.textContent = `${emp.role} (${authorityLabel})`;
             mobileProfileAvatar.src = getEmployeeAvatar(emp);
         }
-    } else if (state.manager) {
-        const fullName = `${state.manager.name} ${state.manager.lastname}`;
-        mobileProfileName.textContent = fullName;
-        mobileProfileRole.textContent = state.manager.role;
-        if (state.manager.avatar) {
-            mobileProfileAvatar.src = state.manager.avatar;
+    } else {
+        const manager = state.manager || defaultManager;
+        const fullName = `${manager.name || ''} ${manager.lastname || ''}`;
+        mobileProfileName.textContent = fullName.trim() || "Yönetici";
+        mobileProfileRole.textContent = manager.role || "İK Yöneticisi";
+        if (manager.avatar) {
+            mobileProfileAvatar.src = manager.avatar;
         }
     }
 }
@@ -1226,8 +1232,11 @@ function updateMobileDashboardGreeting() {
         if (emp) {
             name = emp.name;
         }
-    } else if (state.manager && state.manager.name) {
-        name = state.manager.name;
+    } else {
+        const manager = state.manager || defaultManager;
+        if (manager && manager.name) {
+            name = manager.name;
+        }
     }
     
     greetingTextEl.innerHTML = `${greeting}, <span id="mobile-greeting-username">${name}</span> <span id="mobile-greeting-emoji">${emoji}</span>`;
@@ -3141,16 +3150,17 @@ function openProfileModal() {
     } else {
         document.querySelector("#modal-profile .modal-title").textContent = "Yönetici Profil Ayarları";
         
-        inputName.value = state.manager.name;
+        const manager = state.manager || defaultManager;
+        inputName.value = manager.name || "";
         inputName.disabled = false;
         
-        inputLastname.value = state.manager.lastname;
+        inputLastname.value = manager.lastname || "";
         inputLastname.disabled = false;
         
-        inputRole.value = state.manager.role;
+        inputRole.value = manager.role || "";
         inputRole.disabled = false;
         
-        inputUsername.value = state.manager.username;
+        inputUsername.value = manager.username || "";
         inputUsername.disabled = false;
         
         inputPassword.value = "";
