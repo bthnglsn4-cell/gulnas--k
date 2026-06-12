@@ -353,7 +353,6 @@ function initSupabase(url, anonKey) {
         return false;
     }
 }
-
 function updateCloudStatusUI(status) {
     const btn = document.getElementById("btn-cloud-status");
     const text = document.getElementById("cloud-status-text");
@@ -369,8 +368,22 @@ function updateCloudStatusUI(status) {
         btn.className = "cloud-status-btn";
         text.textContent = "Yerel Mod";
     }
-}
 
+    // Update mobile system status text
+    const mobileStatus = document.getElementById("mobile-system-status");
+    if (mobileStatus) {
+        if (status === "active") {
+            mobileStatus.innerHTML = '<span class="status-dot-green"></span> SİSTEM ÇEVRİMİÇİ';
+            mobileStatus.className = "system-status-indicator active";
+        } else if (status === "connecting") {
+            mobileStatus.innerHTML = '<span class="status-dot-orange"></span> BAĞLANILIYOR...';
+            mobileStatus.className = "system-status-indicator connecting";
+        } else {
+            mobileStatus.innerHTML = '<span class="status-dot-blue"></span> YEREL MOD';
+            mobileStatus.className = "system-status-indicator local";
+        }
+    }
+}
 function refreshAllUI() {
     updateHeaderManagerInfo();
     applyRoleRestrictions();
@@ -1006,37 +1019,249 @@ function toggleTheme() {
 }
 
 // --- NAVİGASYON ---
-function initNavigation() {
-    const navItems = document.querySelectorAll(".nav-item");
-    const pageViews = document.querySelectorAll(".page-view");
-    const pageTitle = document.getElementById("page-current-title");
-
-    navItems.forEach(item => {
-        item.addEventListener("click", () => {
-            navItems.forEach(n => n.classList.remove("active"));
-            pageViews.forEach(v => v.classList.remove("active"));
-
+function switchView(viewName) {
+    // Hide all page views
+    document.querySelectorAll(".page-view").forEach(view => {
+        view.classList.remove("active");
+    });
+    
+    // Show target page view
+    const targetView = document.getElementById(`view-${viewName}`);
+    if (targetView) {
+        targetView.classList.add("active");
+    }
+    
+    // Update desktop sidebar active status
+    document.querySelectorAll(".nav-menu .nav-item").forEach(item => {
+        item.classList.remove("active");
+        if (item.getAttribute("data-view") === viewName) {
             item.classList.add("active");
-            const targetView = item.getAttribute("data-view");
-            const viewEl = document.getElementById(`view-${targetView}`);
-            if (viewEl) viewEl.classList.add("active");
+        }
+    });
+    
+    // Update mobile bottom nav active status
+    document.querySelectorAll(".mobile-bottom-nav .bottom-nav-item").forEach(item => {
+        item.classList.remove("active");
+        if (item.getAttribute("data-view") === viewName) {
+            item.classList.add("active");
+        }
+    });
+    
+    // Update title
+    const pageTitleMap = {
+        "dashboard": "Ana Panel",
+        "personel": "Personel Kartları",
+        "ozluk": "Özlük Dosyaları",
+        "puantaj": "Puantaj Cetveli",
+        "izin": "İzin Talepleri",
+        "profil": "Profilim"
+    };
+    const titleEl = document.getElementById("page-current-title");
+    if (titleEl) {
+        titleEl.textContent = pageTitleMap[viewName] || "Yönetim Paneli";
+    }
+    
+    // Update FAB Visibility
+    updateMobileFABVisibility(viewName);
+    
+    // Trigger corresponding rendering functions
+    if (viewName === "dashboard") {
+        renderDashboard();
+    } else if (viewName === "personel") {
+        renderPersonelList();
+    } else if (viewName === "ozluk") {
+        renderOzlukEmployeeList();
+        renderOzlukDocuments();
+    } else if (viewName === "puantaj") {
+        renderPuantaj();
+        populateMonthSelectDropdown();
+    } else if (viewName === "izin") {
+        renderLeaveRequests();
+        renderIzinModule();
+    } else if (viewName === "profil") {
+        updateMobileProfileView();
+    }
+}
 
-            pageTitle.textContent = item.textContent.trim();
+function updateMobileFABVisibility(viewName) {
+    const fabBtn = document.getElementById("btn-mobile-fab");
+    if (!fabBtn) return;
+    
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    
+    if (viewName === "dashboard") {
+        if (role === "admin") {
+            fabBtn.style.display = "flex";
+            fabBtn.title = "Duyuru Yayınla";
+        } else {
+            fabBtn.style.display = "none";
+        }
+    } else if (viewName === "personel") {
+        if (role === "admin") {
+            fabBtn.style.display = "flex";
+            fabBtn.title = "Personel Ekle";
+        } else {
+            fabBtn.style.display = "none";
+        }
+    } else if (viewName === "izin") {
+        fabBtn.style.display = "flex";
+        fabBtn.title = "İzin Talebi Oluştur";
+    } else {
+        fabBtn.style.display = "none";
+    }
+}
 
-            if (targetView === "dashboard") renderDashboard();
-            if (targetView === "personel") renderPersonelList();
-            if (targetView === "ozluk") {
-                renderOzlukEmployeeList();
-                renderOzlukDocuments();
-            }
-            if (targetView === "puantaj") renderPuantaj();
-            if (targetView === "izin") {
-                renderLeaveRequests();
-                populateLeaveEmployeeSelect();
-                renderIzinModule();
+function updateMobileProfileView() {
+    const mobileProfileName = document.getElementById("mobile-profile-name");
+    const mobileProfileRole = document.getElementById("mobile-profile-role");
+    const mobileProfileAvatar = document.getElementById("mobile-profile-avatar");
+    
+    if (!mobileProfileName || !mobileProfileRole || !mobileProfileAvatar) return;
+    
+    const empId = sessionStorage.getItem("gl_logged_employee_id");
+    if (empId) {
+        const emp = state.employees.find(e => e.id === empId);
+        if (emp) {
+            mobileProfileName.textContent = `${emp.name} ${emp.lastname || ''}`;
+            const authorityLabel = emp.authority === "admin" ? "Müdür" : "Personel";
+            mobileProfileRole.textContent = `${emp.role} (${authorityLabel})`;
+            mobileProfileAvatar.src = getEmployeeAvatar(emp);
+        }
+    } else if (state.manager) {
+        const fullName = `${state.manager.name} ${state.manager.lastname}`;
+        mobileProfileName.textContent = fullName;
+        mobileProfileRole.textContent = state.manager.role;
+        if (state.manager.avatar) {
+            mobileProfileAvatar.src = state.manager.avatar;
+        }
+    }
+}
+
+function updateMobileDashboardGreeting() {
+    const greetingTextEl = document.querySelector("#mobile-dashboard-greeting-card .greeting-text");
+    if (!greetingTextEl) return;
+    
+    const hour = new Date().getHours();
+    let greeting = "İyi Günler";
+    let emoji = "☀️";
+    
+    if (hour >= 5 && hour < 12) {
+        greeting = "Günaydın";
+        emoji = "🌅";
+    } else if (hour >= 12 && hour < 17) {
+        greeting = "İyi Günler";
+        emoji = "☀️";
+    } else if (hour >= 17 && hour < 22) {
+        greeting = "İyi Akşamlar";
+        emoji = "🌙";
+    } else {
+        greeting = "İyi Geceler";
+        emoji = "🌌";
+    }
+    
+    let name = "Yönetici";
+    const empId = sessionStorage.getItem("gl_logged_employee_id");
+    if (empId) {
+        const emp = state.employees.find(e => e.id === empId);
+        if (emp) {
+            name = emp.name;
+        }
+    } else if (state.manager && state.manager.name) {
+        name = state.manager.name;
+    }
+    
+    greetingTextEl.innerHTML = `${greeting}, <span id="mobile-greeting-username">${name}</span> <span id="mobile-greeting-emoji">${emoji}</span>`;
+    
+    // Update system status indicator in the greeting card
+    const mobileStatusIndicator = document.getElementById("mobile-system-status");
+    if (mobileStatusIndicator) {
+        if (typeof supabaseInitialized !== 'undefined' && supabaseInitialized) {
+            mobileStatusIndicator.innerHTML = '<span class="status-dot-green"></span> SİSTEM ÇEVRİMİÇİ';
+            mobileStatusIndicator.className = "system-status-indicator active";
+        } else {
+            mobileStatusIndicator.innerHTML = '<span class="status-dot-blue"></span> YEREL MOD';
+            mobileStatusIndicator.className = "system-status-indicator local";
+        }
+    }
+}
+
+function initNavigation() {
+    // Desktop navigation click handlers
+    document.querySelectorAll(".nav-menu .nav-item").forEach(item => {
+        item.addEventListener("click", (e) => {
+            const viewName = item.getAttribute("data-view");
+            if (viewName) {
+                switchView(viewName);
             }
         });
     });
+    
+    // Mobile bottom navigation click handlers
+    document.querySelectorAll(".mobile-bottom-nav .bottom-nav-item").forEach(item => {
+        item.addEventListener("click", (e) => {
+            const viewName = item.getAttribute("data-view");
+            if (viewName) {
+                switchView(viewName);
+            }
+        });
+    });
+    
+    // Mobile FAB Click Handler
+    const fabBtn = document.getElementById("btn-mobile-fab");
+    if (fabBtn) {
+        fabBtn.addEventListener("click", () => {
+            const activeView = document.querySelector(".page-view.active");
+            if (!activeView) return;
+            const viewId = activeView.id.replace("view-", "");
+            
+            if (viewId === "personel") {
+                openPersonelModal(false);
+            } else if (viewId === "izin") {
+                const leaveForm = document.getElementById("form-request-leave");
+                if (leaveForm) {
+                    leaveForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const formCard = leaveForm.closest(".glass-card");
+                    if (formCard) {
+                        formCard.classList.add("flash-highlight");
+                        setTimeout(() => formCard.classList.remove("flash-highlight"), 2000);
+                    }
+                }
+            } else if (viewId === "dashboard") {
+                const formAnn = document.getElementById("form-announcement");
+                if (formAnn) {
+                    formAnn.reset();
+                    document.getElementById("modal-announcement").classList.add("active");
+                }
+            }
+        });
+    }
+    
+    // Mobile Profile buttons mapping
+    const btnMobileEditProfile = document.getElementById("btn-mobile-edit-profile");
+    if (btnMobileEditProfile) {
+        btnMobileEditProfile.addEventListener("click", openProfileModal);
+    }
+    
+    const btnMobileCloudSettings = document.getElementById("btn-mobile-cloud-settings");
+    if (btnMobileCloudSettings) {
+        btnMobileCloudSettings.addEventListener("click", () => {
+            const btnCloud = document.getElementById("btn-cloud-status");
+            if (btnCloud) btnCloud.click();
+        });
+    }
+    
+    const btnMobileLogout = document.getElementById("btn-mobile-logout");
+    if (btnMobileLogout) {
+        btnMobileLogout.addEventListener("click", handleLogout);
+    }
+    
+    // Sync default view on load
+    const activeNav = document.querySelector(".nav-menu .nav-item.active");
+    const defaultView = activeNav ? activeNav.getAttribute("data-view") : "dashboard";
+    switchView(defaultView);
+    
+    // Initialize Dashboard greeting
+    updateMobileDashboardGreeting();
 }
 
 // --- GÖRÜNÜM SEÇİCİ (KART / LİSTE) ---
