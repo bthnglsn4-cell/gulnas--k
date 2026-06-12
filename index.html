@@ -30,10 +30,6 @@
                     <input type="password" class="form-control" id="login-password" placeholder="••••••••" required style="padding-left:14px;">
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:10px;">Giriş Yap</button>
-                <button type="button" class="btn-secondary" id="btn-login-cloud-config" style="width:100%;justify-content:center;margin-top:10px;gap:8px;font-size:12px;padding:8px 14px;">
-                    <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; vertical-align: middle; margin-right: 4px;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-                    Bulut Senkronizasyonu Kurulumu
-                </button>
             </form>
         </div>
     </div>
@@ -1074,6 +1070,26 @@
 
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Global Error Boundary for Diagnostics -->
+    <script>
+        window.addEventListener("error", function(e) {
+            var errorBanner = document.createElement("div");
+            errorBanner.style.position = "fixed";
+            errorBanner.style.top = "0";
+            errorBanner.style.left = "0";
+            errorBanner.style.width = "100%";
+            errorBanner.style.background = "#ff5858";
+            errorBanner.style.color = "white";
+            errorBanner.style.padding = "15px";
+            errorBanner.style.zIndex = "99999999";
+            errorBanner.style.fontSize = "14px";
+            errorBanner.style.fontFamily = "monospace";
+            errorBanner.style.boxShadow = "0 2px 10px rgba(0,0,0,0.5)";
+            errorBanner.innerHTML = "<strong>[HATA]</strong> " + e.message + "<br>Dosya: " + e.filename + "<br>Satır: " + e.lineno + ":" + e.colno;
+            document.body.appendChild(errorBanner);
+        });
+    </script>
 
     <!-- Application Script -->
     <script src="app.js"></script>

@@ -335,23 +335,35 @@ const defaultAnnouncements = [
 ];
 
 // --- STATE MANAGEMENT ---
+function safeJsonParse(key, fallback) {
+    try {
+        const val = localStorage.getItem(key);
+        if (!val) return fallback;
+        const parsed = JSON.parse(val);
+        return parsed === null ? fallback : parsed;
+    } catch (e) {
+        console.error(`Error parsing localStorage key "${key}":`, e);
+        return fallback;
+    }
+}
+
 let state = {
-    employees: JSON.parse(localStorage.getItem("gl_employees")) || defaultEmployees,
-    documents: JSON.parse(localStorage.getItem("gl_documents")) || defaultDocuments,
-    leaveRequests: JSON.parse(localStorage.getItem("gl_leaveRequests")) || defaultLeaveRequests,
-    attendance: JSON.parse(localStorage.getItem("gl_attendance")) || defaultAttendance,
-    manager: JSON.parse(localStorage.getItem("gl_manager")) || defaultManager,
-    announcements: JSON.parse(localStorage.getItem("gl_announcements")) || defaultAnnouncements,
+    employees: safeJsonParse("gl_employees", defaultEmployees),
+    documents: safeJsonParse("gl_documents", defaultDocuments),
+    leaveRequests: safeJsonParse("gl_leaveRequests", defaultLeaveRequests),
+    attendance: safeJsonParse("gl_attendance", defaultAttendance),
+    manager: safeJsonParse("gl_manager", defaultManager),
+    announcements: safeJsonParse("gl_announcements", defaultAnnouncements),
     personelView: localStorage.getItem("gl_personel_view") || "grid" // "grid" veya "list"
 };
 
-// Force defaults to prevent TypeError if localStorage returned "null"
-if (!state.employees) state.employees = defaultEmployees;
-if (!state.documents) state.documents = defaultDocuments;
-if (!state.leaveRequests) state.leaveRequests = defaultLeaveRequests;
-if (!state.attendance) state.attendance = {};
-if (!state.manager) state.manager = defaultManager;
-if (!state.announcements) state.announcements = defaultAnnouncements;
+// Strict type checking and fallback validation to prevent runtime TypeErrors
+if (!Array.isArray(state.employees)) state.employees = defaultEmployees;
+if (!Array.isArray(state.documents)) state.documents = defaultDocuments;
+if (!Array.isArray(state.leaveRequests)) state.leaveRequests = defaultLeaveRequests;
+if (typeof state.attendance !== "object" || state.attendance === null || Array.isArray(state.attendance)) state.attendance = {};
+if (typeof state.manager !== "object" || state.manager === null || Array.isArray(state.manager)) state.manager = defaultManager;
+if (!Array.isArray(state.announcements)) state.announcements = defaultAnnouncements;
 
 let supabaseInitialized = false;
 let supabaseClient = null;
@@ -1088,12 +1100,12 @@ function initTheme() {
 
     if (isLight) {
         body.classList.add("light-theme");
-        text.textContent = "Karanlık Mod";
-        icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`; // Moon icon
+        if (text) text.textContent = "Karanlık Mod";
+        if (icon) icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`; // Moon icon
     } else {
         body.classList.remove("light-theme");
-        text.textContent = "Aydınlık Mod";
-        icon.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`; // Sun icon
+        if (text) text.textContent = "Aydınlık Mod";
+        if (icon) icon.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`; // Sun icon
     }
 }
 
@@ -3879,14 +3891,21 @@ function setupEventListeners() {
         document.getElementById("modal-firebase-config").classList.remove("active");
         
         state = {
-            employees: JSON.parse(localStorage.getItem("gl_employees")) || defaultEmployees,
-            documents: JSON.parse(localStorage.getItem("gl_documents")) || defaultDocuments,
-            leaveRequests: JSON.parse(localStorage.getItem("gl_leaveRequests")) || defaultLeaveRequests,
-            attendance: JSON.parse(localStorage.getItem("gl_attendance")) || defaultAttendance,
-            manager: JSON.parse(localStorage.getItem("gl_manager")) || defaultManager,
-            announcements: JSON.parse(localStorage.getItem("gl_announcements")) || defaultAnnouncements,
+            employees: safeJsonParse("gl_employees", defaultEmployees),
+            documents: safeJsonParse("gl_documents", defaultDocuments),
+            leaveRequests: safeJsonParse("gl_leaveRequests", defaultLeaveRequests),
+            attendance: safeJsonParse("gl_attendance", defaultAttendance),
+            manager: safeJsonParse("gl_manager", defaultManager),
+            announcements: safeJsonParse("gl_announcements", defaultAnnouncements),
             personelView: localStorage.getItem("gl_personel_view") || "grid"
         };
+        
+        if (!Array.isArray(state.employees)) state.employees = defaultEmployees;
+        if (!Array.isArray(state.documents)) state.documents = defaultDocuments;
+        if (!Array.isArray(state.leaveRequests)) state.leaveRequests = defaultLeaveRequests;
+        if (typeof state.attendance !== "object" || state.attendance === null || Array.isArray(state.attendance)) state.attendance = {};
+        if (typeof state.manager !== "object" || state.manager === null || Array.isArray(state.manager)) state.manager = defaultManager;
+        if (!Array.isArray(state.announcements)) state.announcements = defaultAnnouncements;
         
         refreshAllUI();
         alert("Bulut bağlantısı kesildi. Yerel depolama moduna geçildi.");
