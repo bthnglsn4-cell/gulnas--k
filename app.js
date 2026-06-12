@@ -1075,6 +1075,11 @@ function toggleTheme() {
 
 // --- NAVİGASYON ---
 function switchView(viewName) {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee" && (viewName === "personel" || viewName === "puantaj")) {
+        viewName = "dashboard";
+    }
+
     // Hide all page views
     document.querySelectorAll(".page-view").forEach(view => {
         view.classList.remove("active");
@@ -1984,6 +1989,11 @@ function toggleEmployeeActiveState(empId, newState) {
 }
 
 function deleteEmployee(empId) {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee") {
+        alert("Hata: Bu işlemi gerçekleştirmek için yetkiniz bulunmuyor!");
+        return;
+    }
     const emp = state.employees.find(e => e.id === empId);
     if (!emp) return;
 
@@ -2501,6 +2511,11 @@ function renderLeaveRequests() {
 }
 
 function handleLeaveStatus(reqId, status) {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee") {
+        alert("Hata: Bu işlemi gerçekleştirmek için yetkiniz bulunmuyor!");
+        return;
+    }
     const req = state.leaveRequests.find(r => r.id === reqId);
     if (!req) return;
 
@@ -2793,6 +2808,9 @@ function renderIzinModule() {
 
 // --- NEW MODAL & BOARD & NAVIGATION FUNCTIONS ---
 function openActiveLeavesModal() {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee") return;
+
     const modal = document.getElementById("modal-active-leaves");
     const tableBody = document.getElementById("active-leaves-modal-table-body");
     tableBody.innerHTML = "";
@@ -2999,6 +3017,9 @@ function printPayrollSlip() {
 
 // --- MODALLAR VE FORM İŞLEMLERİ ---
 function openPersonelModal(isEdit = false, empId = null) {
+    const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+    if (role === "employee") return;
+
     const modal = document.getElementById("modal-personel");
     const title = document.getElementById("modal-personel-title");
     const form = document.getElementById("form-personel");
@@ -3243,14 +3264,41 @@ function setupEventListeners() {
     document.getElementById("btn-view-list").addEventListener("click", () => switchPersonelView("list"));
 
     document.getElementById("widget-total-employees").addEventListener("click", () => {
+        const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+        if (role === "employee") return;
         const menuPersonel = document.getElementById("menu-personel");
         if (menuPersonel) menuPersonel.click();
     });
     
-    document.getElementById("widget-on-leave").addEventListener("click", openActiveLeavesModal);
+    document.getElementById("widget-on-leave").addEventListener("click", () => {
+        const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+        if (role === "employee") {
+            const menuIzin = document.getElementById("menu-izin");
+            if (menuIzin) menuIzin.click();
+            return;
+        }
+        openActiveLeavesModal();
+    });
     
-    document.getElementById("widget-expiring-docs").addEventListener("click", scrollToAlerts);
-    document.getElementById("btn-notifications").addEventListener("click", scrollToAlerts);
+    document.getElementById("widget-expiring-docs").addEventListener("click", () => {
+        const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+        if (role === "employee") {
+            const menuOzluk = document.getElementById("menu-ozluk");
+            if (menuOzluk) menuOzluk.click();
+            return;
+        }
+        scrollToAlerts();
+    });
+    
+    document.getElementById("btn-notifications").addEventListener("click", () => {
+        const role = sessionStorage.getItem("gl_logged_in_role") || "admin";
+        if (role === "employee") {
+            const menuOzluk = document.getElementById("menu-ozluk");
+            if (menuOzluk) menuOzluk.click();
+            return;
+        }
+        scrollToAlerts();
+    });
     
     document.getElementById("widget-salary-paid").addEventListener("click", () => {
         const today = new Date();
