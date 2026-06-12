@@ -327,6 +327,14 @@ let state = {
     personelView: localStorage.getItem("gl_personel_view") || "grid" // "grid" veya "list"
 };
 
+// Force defaults to prevent TypeError if localStorage returned "null"
+if (!state.employees) state.employees = defaultEmployees;
+if (!state.documents) state.documents = defaultDocuments;
+if (!state.leaveRequests) state.leaveRequests = defaultLeaveRequests;
+if (!state.attendance) state.attendance = {};
+if (!state.manager) state.manager = defaultManager;
+if (!state.announcements) state.announcements = defaultAnnouncements;
+
 let supabaseInitialized = false;
 let supabaseClient = null;
 let supabaseChannel = null;
