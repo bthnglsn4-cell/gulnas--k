@@ -1036,8 +1036,41 @@ function initNavigation() {
                 populateLeaveEmployeeSelect();
                 renderIzinModule();
             }
+
+            // Mobil cihazlarda menü öğesi seçildiğinde çekmeceyi kapat
+            const sidebar = document.querySelector(".sidebar");
+            const backdrop = document.getElementById("sidebar-backdrop");
+            if (sidebar) sidebar.classList.remove("active");
+            if (backdrop) backdrop.classList.remove("active");
         });
     });
+
+    // Mobil Çekmece Menü Kontrolleri
+    const btnMobileMenu = document.getElementById("btn-mobile-menu");
+    const btnSidebarClose = document.getElementById("btn-sidebar-close");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (btnMobileMenu && sidebar) {
+        btnMobileMenu.addEventListener("click", () => {
+            sidebar.classList.add("active");
+            if (sidebarBackdrop) sidebarBackdrop.classList.add("active");
+        });
+    }
+
+    if (btnSidebarClose && sidebar) {
+        btnSidebarClose.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+        });
+    }
+
+    if (sidebarBackdrop && sidebar) {
+        sidebarBackdrop.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            sidebarBackdrop.classList.remove("active");
+        });
+    }
 }
 
 // --- GÖRÜNÜM SEÇİCİ (KART / LİSTE) ---
