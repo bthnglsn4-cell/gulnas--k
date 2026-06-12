@@ -2147,6 +2147,22 @@ body.light-theme .cloud-status-btn:hover {
         background-color: #f0f2f5 !important;
     }
 
+    /* Performance optimizations for mobile */
+    .bg-glow-1,
+    .bg-glow-2 {
+        display: none !important;
+    }
+    
+    .glass-card {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(18, 22, 36, 0.95) !important;
+    }
+
+    body.light-theme .glass-card {
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+
     /* Sidebar hiding */
     .sidebar {
         display: none !important;
@@ -2517,6 +2533,11 @@ body.light-theme .cloud-status-btn:hover {
         grid-template-columns: 1fr !important;
         gap: 16px !important;
     }
+}
+
+/* Force Supabase Configuration modal above the login overlay */
+#modal-firebase-config {
+    z-index: 1000000 !important;
 }
 
 

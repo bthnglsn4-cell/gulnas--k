@@ -3033,6 +3033,14 @@ function setupEventListeners() {
     document.getElementById("form-login").addEventListener("submit", handleLogin);
     document.getElementById("btn-logout").addEventListener("click", handleLogout);
 
+    const btnLoginCloud = document.getElementById("btn-login-cloud-config");
+    if (btnLoginCloud) {
+        btnLoginCloud.addEventListener("click", () => {
+            const btnCloudStatus = document.getElementById("btn-cloud-status");
+            if (btnCloudStatus) btnCloudStatus.click();
+        });
+    }
+
     document.getElementById("user-profile-header").addEventListener("click", openProfileModal);
     document.getElementById("modal-profile-close").addEventListener("click", closeProfileModal);
     document.getElementById("btn-cancel-profile").addEventListener("click", closeProfileModal);
