@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GÜLNAS İNŞAAT İK - İnsan Kaynakları Yönetim Paneli</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.2">
 </head>
 <body>
     <!-- 1. Authentication Login Overlay -->
@@ -40,14 +40,20 @@
         <div class="bg-glow-1"></div>
         <div class="bg-glow-2"></div>
 
+        <!-- Menü Karartma Katmanı (Backdrop) -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="logo-area">
                 <img src="assets/logo.jpg" alt="GÜLNAS Logo" class="logo-img">
-                <div>
+                <div style="flex-grow: 1;">
                     <span class="logo-title">GÜLNAS İNŞAAT</span>
                     <span class="logo-sub">İK</span>
                 </div>
+                <button class="sidebar-close-btn" id="btn-sidebar-close" aria-label="Menüyü Kapat">
+                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
             
             <ul class="nav-menu">
@@ -93,7 +99,12 @@
         <main class="main-content">
             <!-- Header -->
             <header class="header">
-                <h1 class="page-title" id="page-current-title">Ana Panel</h1>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="mobile-menu-btn" id="btn-mobile-menu" aria-label="Menü">
+                        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <h1 class="page-title" id="page-current-title">Ana Panel</h1>
+                </div>
                 <div class="header-right">
                     <button class="cloud-status-btn" id="btn-cloud-status" title="Bulut Senkronizasyon Ayarları">
                         <svg viewBox="0 0 24 24" id="cloud-status-icon" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;">
@@ -1009,6 +1020,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Application Script -->
-    <script src="app.js"></script>
+    <script src="app.js?v=2.2"></script>
 </body>
 </html>
