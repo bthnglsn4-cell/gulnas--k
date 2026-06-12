@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GÜLNAS İNŞAAT İK - İnsan Kaynakları Yönetim Paneli</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 1. Authentication Login Overlay -->
+    <div class="login-overlay" id="login-overlay">
+        <!-- Glowing background blurs inside login overlay -->
+        <div class="bg-glow-1" style="opacity: 0.2"></div>
+        <div class="bg-glow-2" style="opacity: 0.2"></div>
+        
+        <div class="login-card">
+            <img src="assets/logo.jpg" alt="GÜLNAS Logo" class="login-logo">
+            <div class="login-header-text">
+                <span class="login-title">GÜLNAS İNŞAAT İK</span>
+                <span class="login-sub">Giriş Paneli</span>
+            </div>
+            <div class="login-error" id="login-error-msg">Kullanıcı adı veya şifre hatalı!</div>
+            <form class="login-form" id="form-login">
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" for="login-username">Kullanıcı Adı / E-posta</label>
+                    <input type="text" class="form-control" id="login-username" placeholder="örn: admin veya e-posta" required style="padding-left:14px;">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" for="login-password">Şifre</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="••••••••" required style="padding-left:14px;">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:10px;">Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div class="app-container">
+        <!-- Background glows for rich aesthetics -->
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="assets/logo.jpg" alt="GÜLNAS Logo" class="logo-img">
+                <div>
+                    <span class="logo-title">GÜLNAS İNŞAAT</span>
+                    <span class="logo-sub">İK</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard" id="menu-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                    Ana Panel
+                </li>
+                <li class="nav-item" data-view="personel" id="menu-personel">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Personel Kartları
+                </li>
+                <li class="nav-item" data-view="ozluk" id="menu-ozluk">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Özlük Dosyaları
+                </li>
+                <li class="nav-item" data-view="puantaj" id="menu-puantaj">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Puantaj Cetveli
+                </li>
+                <li class="nav-item" data-view="izin" id="menu-izin">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    İzin Talepleri
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle-btn" id="theme-toggle">
+                    <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24" id="theme-icon">
+                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <span id="theme-text">Aydınlık Mod</span>
+                </button>
+                <button class="btn-danger-outline" id="btn-logout">
+                    <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="page-title" id="page-current-title">Ana Panel</h1>
+                <div class="header-right">
+                    <button class="cloud-status-btn" id="btn-cloud-status" title="Bulut Senkronizasyon Ayarları">
+                        <svg viewBox="0 0 24 24" id="cloud-status-icon" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                        </svg>
+                        <span id="cloud-status-text">Yerel Mod</span>
+                    </button>
+                    <div class="notification-bell" id="btn-notifications">
+                        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="notification-badge" id="notification-count">0</span>
+                    </div>
+                    <div class="user-profile" id="user-profile-header" title="Profil Ayarlarını Düzenle">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Yönetici Profil" class="user-avatar" id="header-avatar">
+                        <div class="user-info">
+                            <span class="user-name" id="header-user-name">Sistem Yöneticisi</span>
+                            <span class="user-role" id="header-user-role">İK Yöneticisi</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <section class="page-view active" id="view-dashboard">
+                <!-- Dashboard Grid (6 Widgets) -->
+                <div class="dashboard-grid">
+                    <div class="glass-card widget-card clickable" id="widget-total-employees" title="Personel Listesine Git">
+                        <div class="widget-icon icon-blue">
+                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-total-employees">0</span>
+                            <span class="widget-label">Toplam Personel</span>
+                        </div>
+                    </div>
+                    <div class="glass-card widget-card clickable" id="widget-on-leave" title="İzinli Personel Detaylarını Gör">
+                        <div class="widget-icon icon-purple">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-on-leave">0</span>
+                            <span class="widget-label">İzinli Personel</span>
+                        </div>
+                    </div>
+                    <div class="glass-card widget-card clickable" id="widget-expiring-docs" title="Evrak Listesine Git">
+                        <div class="widget-icon icon-orange">
+                            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-expiring-docs">0</span>
+                            <span class="widget-label">Süresi Yaklaşan Belge</span>
+                        </div>
+                    </div>
+                    <div class="glass-card widget-card clickable" id="widget-salary-paid" title="Geçen Ayın Puantaj Cetveline Git">
+                        <div class="widget-icon icon-teal">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M15 9.5a2.5 2.5 0 0 0-5 0v5a2.5 2.5 0 0 0 5 0"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-salary-paid">0 TL</span>
+                            <span class="widget-label">Son Ay Ödenen Maaş</span>
+                        </div>
+                    </div>
+                    <div class="glass-card widget-card clickable" id="widget-salary-estimate" title="Bu Ayın Puantaj Cetveline Git">
+                        <div class="widget-icon icon-gold">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M15 9.5a2.5 2.5 0 0 0-5 0v5a2.5 2.5 0 0 0 5 0"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-salary-estimate">0 TL</span>
+                            <span class="widget-label">Bu Ay Ödenecek Maaş</span>
+                        </div>
+                    </div>
+                    <div class="glass-card widget-card">
+                        <div class="widget-icon icon-green">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="widget-info">
+                            <span class="widget-value" id="stat-timesheet-hours">0</span>
+                            <span class="widget-label">Aylık Toplam Mesai (Saat)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Layout Main -->
+                <div class="dashboard-layout-main">
+                    <!-- Left: Expiry Alerts Panel -->
+                    <div class="glass-card" id="dashboard-alerts-panel">
+                        <h3 class="alert-card-title">
+                            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Kritik Evrak Hatırlatıcıları (MYK & Sağlık Raporları)
+                        </h3>
+                        <div class="alerts-list" id="dashboard-alerts-list">
+                            <!-- Populated dynamically -->
+                            <div class="alert-item warning">
+                                <div class="alert-details">
+                                    <div class="alert-text">Sistem taranıyor... Evrak kontrolü yapılıyor.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Announcements / Info -->
+                    <div class="glass-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                            <h3 class="alert-card-title" style="color:var(--secondary);margin:0;display:flex;align-items:center;gap:8px;">
+                                <svg viewBox="0 0 24 24" style="stroke:var(--secondary)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                Şirket İçi Bilgi & Duyurular
+                            </h3>
+                            <button class="btn-primary" id="btn-add-announcement" style="padding: 4px 10px; font-size: 11px; display: none; height:28px;">Duyuru Yayınla</button>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:16px;margin-top:10px;" id="dashboard-announcements-list">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personel Kartları View -->
+            <section class="page-view" id="view-personel">
+                <!-- Action Bar -->
+                <div class="action-bar">
+                    <div class="search-filter-group">
+                        <div class="search-input-wrapper">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" class="form-control" placeholder="Personel Adı, Ünvan veya Departman Ara..." id="personel-search">
+                        </div>
+                        <select class="filter-select" id="personel-dept-filter">
+                            <option value="all">Tüm Departmanlar (Aktif)</option>
+                            <option value="Şantiye">Şantiye</option>
+                            <option value="Merkez Ofis">Merkez Ofis</option>
+                            <option value="Muhasebe">Muhasebe</option>
+                            <option value="İK">İK</option>
+                            <option value="passive">İşten Çıkarılanlar (Arşiv)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <!-- View Toggle Buttons -->
+                        <div class="view-toggle-group">
+                            <button class="btn-toggle active" id="btn-view-grid" title="Kart Görünümü">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Kartlar
+                            </button>
+                            <button class="btn-toggle" id="btn-view-list" title="Liste (Tablo) Görünümü">
+                                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                Liste
+                            </button>
+                        </div>
+                        
+                        <button class="btn-primary" id="btn-add-personel">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Yeni Personel Ekle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Grid Cards View -->
+                <div class="personel-grid" id="personel-cards-container">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- 2. Table List View -->
+                <div class="personel-table-container" id="personel-list-container">
+                    <table class="personel-table">
+                        <thead>
+                            <tr>
+                                <th>Personel</th>
+                                <th>Departman</th>
+                                <th>Pozisyon</th>
+                                <th>Maaş</th>
+                                <th>İşe Giriş Tarihi</th>
+                                <th>Ayrılış Tarihi</th>
+                                <th>Çalışılan Gün</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="personel-table-rows">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Özlük Dosyaları View -->
+            <section class="page-view" id="view-ozluk">
+                <div class="ozluk-layout">
+                    <!-- Left: Employee list sidebar -->
+                    <div class="glass-card ozluk-sidebar">
+                        <div class="search-input-wrapper">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" class="form-control" placeholder="Personel Ara..." id="ozluk-search">
+                        </div>
+                        <div class="ozluk-employee-list" id="ozluk-employee-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Selected Employee Documents -->
+                    <div class="ozluk-main-content">
+                        <!-- Employee Info Header Card -->
+                        <div class="glass-card ozluk-header-card" id="ozluk-header-card">
+                            <div class="ozluk-selected-profile">
+                                <div class="ozluk-selected-avatar" style="background:#ddd;width:70px;height:70px;border-radius:50%"></div>
+                                <div>
+                                    <h2 style="font-size:20px;font-weight:700;">Lütfen çalışan seçin</h2>
+                                    <span style="font-size:13px;color:var(--text-muted);;">Sol menüden evraklarını görmek istediğiniz personeli seçin.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Grid -->
+                        <div class="glass-card" id="ozluk-documents-container" style="display:none;">
+                            <h3 style="font-size:16px;margin-bottom:20px;">Yüklü Özlük Dosyaları</h3>
+                            <div class="document-grid" id="document-grid">
+                                <!-- Populated dynamically -->
+                            </div>
+                            
+                            <h3 style="font-size:16px;margin:30px 0 20px;">Yeni Belge Ekle</h3>
+                            <div class="drag-drop-zone" id="drag-drop-zone">
+                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <p style="font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text-main)">Dosya Yüklemek İçin Tıklayın veya Sürükleyin</p>
+                                <p style="font-size:12px;color:var(--text-muted)">PDF, PNG, JPG (Maksimum 10MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Puantaj Cetveli View -->
+            <section class="page-view" id="view-puantaj">
+                <div class="glass-card">
+                    <div class="puantaj-header">
+                        <!-- Navigation and Select Dropdown -->
+                        <div class="month-navigator">
+                            <button class="btn-nav" id="puantaj-prev-month">
+                                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <select class="month-select-dropdown" id="puantaj-month-select">
+                                <!-- Populated dynamically (Jan 2026 to Dec 2026) -->
+                            </select>
+                            <button class="btn-nav" id="puantaj-next-month">
+                                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                            <span class="current-month-text" id="puantaj-current-month" style="display:none;">Haziran 2026</span>
+                        </div>
+
+                        <div class="puantaj-legend">
+                            <div class="legend-item">
+                                <span class="legend-badge badge-work">Ç</span>
+                                <span>Çalışıyor</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge badge-leave">İ</span>
+                                <span>İzinli</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge badge-report">R</span>
+                                <span>Raporlu</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge badge-absent">D</span>
+                                <span>Devamsız</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Puantaj Table -->
+                    <div class="puantaj-table-container">
+                        <table class="puantaj-table">
+                            <thead>
+                                <tr id="puantaj-table-header">
+                                    <!-- Populated dynamically -->
+                                </tr>
+                            </thead>
+                            <tbody id="puantaj-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bordro Al Bölümü -->
+                    <div id="bordro-generate-section" style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                        <h3 style="font-size: 16px; margin-bottom: 15px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--secondary);stroke-width:2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Aylık Toplu Bordro & Hakediş Çizelgesi Al
+                        </h3>
+                        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                            <div style="margin-top: 5px;">
+                                <button class="btn-primary" onclick="printPayrollSlip()" style="gap: 8px;">
+                                    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                    Toplu Bordro Yazdır & PDF Al
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- İzin Talepleri View -->
+            <section class="page-view" id="view-izin">
+                <!-- Overview Row -->
+                <div class="izin-overview-grid">
+                    <div class="glass-card izin-balance-card">
+                        <span style="font-size:14px;color:var(--text-muted);font-weight:600">Yıllık İzin Ortalama Kullanım</span>
+                        <div class="balance-ring">
+                            <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                                <circle cx="50" cy="50" r="40" stroke="var(--border-color)" stroke-width="8" fill="transparent"/>
+                                <circle cx="50" cy="50" r="40" stroke="var(--secondary)" stroke-width="8" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2" id="circle-avg-leave"/>
+                            </svg>
+                            <span class="balance-value" id="stat-avg-leave-use-val">%0</span>
+                        </div>
+                        <span style="font-size:12px;color:var(--text-muted)">Toplam yıllık izin kotasından kullanılan</span>
+                    </div>
+
+                    <div class="glass-card izin-balance-card clickable" id="card-this-month-leaves" title="Bu Ay İzin Kullananları Göster">
+                        <span style="font-size:14px;color:var(--text-muted);font-weight:600">Bu Ay Kullanılan İzinler</span>
+                        <div class="balance-ring">
+                            <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                                <circle cx="50" cy="50" r="40" stroke="var(--border-color)" stroke-width="8" fill="transparent"/>
+                                <circle cx="50" cy="50" r="40" stroke="var(--primary)" stroke-width="8" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2" id="circle-this-month-leaves"/>
+                            </svg>
+                            <span class="balance-value" id="stat-this-month-leaves-val">0 Gün</span>
+                        </div>
+                        <span style="font-size:12px;color:var(--text-muted)" id="label-this-month-leaves-desc">Bu ayda alınan toplam izin süresi</span>
+                    </div>
+
+                    <div class="glass-card izin-balance-card">
+                        <span style="font-size:14px;color:var(--text-muted);font-weight:600">Onay Bekleyen Talepler</span>
+                        <div class="balance-ring">
+                            <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                                <circle cx="50" cy="50" r="40" stroke="var(--border-color)" stroke-width="8" fill="transparent"/>
+                                <circle cx="50" cy="50" r="40" stroke="var(--warning-gradient)" stroke-width="8" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="220"/>
+                            </svg>
+                            <span class="balance-value" id="balance-pending-count">0</span>
+                        </div>
+                        <span style="font-size:12px;color:var(--text-muted)">Onay/ret işlemi bekleyen talepler</span>
+                    </div>
+                </div>
+
+                <!-- Layout Split -->
+                <div class="izin-layout-split">
+                    <!-- Left: Request Leave Form -->
+                    <div class="glass-card">
+                        <h3 style="font-size:18px;margin-bottom:20px;">Yeni İzin Talebi Oluştur</h3>
+                        <form id="form-request-leave">
+                            <div class="form-group">
+                                <label class="form-label" for="leave-employee">Personel Seçin</label>
+                                <select class="filter-select" id="leave-employee" style="width:100%" required>
+                                    <option value="" disabled selected>Personel Seçin</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="leave-type">İzin Türü</label>
+                                <select class="filter-select" id="leave-type" style="width:100%" required>
+                                    <option value="Yıllık İzin">Yıllık İzin</option>
+                                    <option value="Raporlu/Sağlık">Raporlu / Sağlık İzni</option>
+                                    <option value="Ücretsiz İzin">Ücretsiz İzin</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="leave-start-date">Başlangıç Tarihi</label>
+                                    <input type="date" class="form-control" id="leave-start-date" required style="padding-left:14px;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="leave-end-date">Bitiş Tarihi</label>
+                                    <input type="date" class="form-control" id="leave-end-date" required style="padding-left:14px;">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="leave-desc">Açıklama / Mazeret</label>
+                                <textarea class="form-control textarea-control" id="leave-desc" placeholder="Açıklama giriniz..." required style="padding-left:14px;"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Talebi Gönder</button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Leave Requests List -->
+                    <div class="glass-card">
+                        <h3 style="font-size:18px;margin-bottom:20px;">İzin Talepleri & Onay Paneli</h3>
+                        <div class="request-list" id="leave-requests-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. İzin Takip ve Bakiye Paneli -->
+                <div class="glass-card" id="izin-takip-paneli" style="margin-top: 32px; transition: all 0.3s ease;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--border-color);padding-bottom:15px;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <h3 style="font-size:18px;color:var(--text-main);display:flex;align-items:center;gap:8px;margin:0;">
+                                <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:var(--secondary);stroke-width:2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Personel İzin Takip & Bakiye Paneli
+                            </h3>
+                            <p style="font-size:12px;color:var(--text-muted);margin-top:4px;margin-bottom:0;">Çalışanların toplam, kullanılan ve kalan izin günleri detayları</p>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn-toggle active" id="btn-izin-tab-bakiyeler" onclick="switchIzinTab('bakiyeler')">Bakiye Tablosu</button>
+                            <button class="btn-toggle" id="btn-izin-tab-kullananlar" onclick="switchIzinTab('kullananlar')">Bu Ay İzin Kullananlar</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab 1: İzin Bakiye Tablosu -->
+                    <div id="izin-tab-content-bakiyeler" class="izin-tab-content active">
+                        <div class="personel-table-container active" style="border:none;background:transparent;backdrop-filter:none;box-shadow:none;margin-top:0;">
+                            <table class="personel-table" style="font-size:13px;width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Personel</th>
+                                        <th>Departman</th>
+                                        <th style="text-align:center;">Toplam İzin Kotası</th>
+                                        <th style="text-align:center;">Kullanılan İzin (Yıllık)</th>
+                                        <th style="text-align:center;">Kalan İzin</th>
+                                        <th>İzin Detay Geçmişi (Gün)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="izin-bakiye-table-body">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Bu Ay İzin Kullananlar Listesi -->
+                    <div id="izin-tab-content-kullananlar" class="izin-tab-content">
+                        <div class="personel-table-container active" style="border:none;background:transparent;backdrop-filter:none;box-shadow:none;margin-top:0;">
+                            <table class="personel-table" style="font-size:13px;width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Personel</th>
+                                        <th>İzin Türü</th>
+                                        <th>Başlangıç / Bitiş</th>
+                                        <th style="text-align:center;">Bu Ay Kullanılan Gün</th>
+                                        <th>Açıklama</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="izin-kullanan-table-body">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- 1. Add/Edit Personel Modal -->
+    <div class="modal-overlay" id="modal-personel">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-personel-title">Yeni Personel Ekle</h3>
+                <button class="modal-close-btn" id="modal-personel-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-personel">
+                <input type="hidden" id="personel-edit-id">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-name">Ad</label>
+                            <input type="text" class="form-control" id="input-name" placeholder="Örn: Ahmet" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-lastname">Soyad</label>
+                            <input type="text" class="form-control" id="input-lastname" placeholder="Örn: Yılmaz" required style="padding-left:14px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="input-tckn">TC Kimlik No</label>
+                        <input type="text" class="form-control" id="input-tckn" placeholder="11 Haneli TC Kimlik No" maxlength="11" minlength="11" required style="padding-left:14px;">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-role">Ünvan / Pozisyon</label>
+                            <input type="text" class="form-control" id="input-role" placeholder="Örn: Şantiye Şefi" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-dept">Departman</label>
+                            <select class="filter-select" id="input-dept" style="width:100%" required>
+                                <option value="Şantiye">Şantiye</option>
+                                <option value="Merkez Ofis">Merkez Ofis</option>
+                                <option value="Muhasebe">Muhasebe</option>
+                                <option value="İK">İK</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-email">E-posta</label>
+                            <input type="email" class="form-control" id="input-email" placeholder="örn: ahmet@gulnasinsaat.com" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-phone">Telefon</label>
+                            <input type="tel" class="form-control" id="input-phone" placeholder="Örn: 0555 123 4567" required style="padding-left:14px;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-salary">Aylık Net Maaş (TL)</label>
+                            <input type="number" class="form-control" id="input-salary" placeholder="Örn: 55000" min="0" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-overtime-rate">Saatlik Fazla Mesai Ücreti (TL)</label>
+                            <input type="number" class="form-control" id="input-overtime-rate" placeholder="Örn: 250" min="0" required style="padding-left:14px;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-hire-date">İşe Giriş Tarihi</label>
+                            <input type="date" class="form-control" id="input-hire-date" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-status">Durum</label>
+                            <select class="filter-select" id="input-status" style="width:100%" required>
+                                <option value="active">Aktif (Çalışıyor)</option>
+                                <option value="leave">İzinli</option>
+                                <option value="report">Raporlu</option>
+                                <option value="passive">İşten Çıkarıldı (Pasif)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-gender">Cinsiyet</label>
+                            <select class="filter-select" id="input-gender" style="width:100%" required>
+                                <option value="Erkek">Erkek</option>
+                                <option value="Kadın">Kadın</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-education">Mezuniyet Durumu</label>
+                            <select class="filter-select" id="input-education" style="width:100%" required>
+                                <option value="Lise">Lise</option>
+                                <option value="Ön Lisans">Ön Lisans</option>
+                                <option value="Lisans" selected>Lisans</option>
+                                <option value="Yüksek Lisans">Yüksek Lisans</option>
+                                <option value="Doktora">Doktora</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="input-birth-date">Doğum Tarihi</label>
+                        <input type="date" class="form-control" id="input-birth-date" required style="padding-left:14px;">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="input-authority">Sistem Yetkisi</label>
+                            <select class="filter-select" id="input-authority" style="width:100%" required>
+                                <option value="employee" selected>Personel (Kısıtlı Yetki)</option>
+                                <option value="admin">Yönetici (Müdür - Tam Yetki)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="input-password">Giriş Şifresi</label>
+                            <input type="text" class="form-control" id="input-password" placeholder="Giriş şifresi belirleyin" required style="padding-left:14px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-personel">İptal</button>
+                    <button type="submit" class="btn-primary" id="btn-submit-personel">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Document Upload Dialog Modal -->
+    <div class="modal-overlay" id="modal-upload">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h3 class="modal-title">Özlük Evrakı Ekle/Yenile</h3>
+                <button class="modal-close-btn" id="modal-upload-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-upload-doc">
+                <div class="modal-body document-upload-modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="upload-doc-type">Belge Türü</label>
+                        <select class="filter-select" id="upload-doc-type" style="width:100%" required>
+                            <option value="Kimlik/Pasaport">Kimlik / Pasaport Görseli</option>
+                            <option value="İş Sözleşmesi">İş Sözleşmesi</option>
+                            <option value="MYK Belgesi">MYK Belgesi (Mesleki Yeterlilik)</option>
+                            <option value="Sağlık Raporu">Sağlık Raporu (Ağır İş)</option>
+                            <option value="Diploma">Diploma / Sertifika</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="upload-doc-expiry">Son Geçerlilik Tarihi (Kritik belgeler için gerekli)</label>
+                        <input type="date" class="form-control" id="upload-doc-expiry" style="padding-left:14px;">
+                        <span style="font-size:11px;color:var(--text-muted);display:block;margin-top:4px;">Sağlık Raporu ve MYK gibi süreli evraklarda hatırlatma için doldurulmalıdır.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="upload-file-picker">Dosya Seçin</label>
+                        <input type="file" class="form-control" id="upload-file-picker" accept=".pdf,.png,.jpg,.jpeg" required style="padding: 6px 14px; height: auto;">
+                        <input type="hidden" id="upload-file-data">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="upload-file-name">Dosya Adı</label>
+                        <input type="text" class="form-control" id="upload-file-name" placeholder="Dosya adı otomatik doldurulur" readonly style="padding-left:14px; background: rgba(255,255,255,0.02); color: var(--text-muted);">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-upload">İptal</button>
+                    <button type="submit" class="btn-primary">Evrak Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Admin Profile Settings Modal -->
+    <div class="modal-overlay" id="modal-profile">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h3 class="modal-title">Yönetici Profil Ayarları</h3>
+                <button class="modal-close-btn" id="modal-profile-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-profile-settings">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="profile-name">Ad</label>
+                            <input type="text" class="form-control" id="profile-name" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="profile-lastname">Soyad</label>
+                            <input type="text" class="form-control" id="profile-lastname" required style="padding-left:14px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="profile-role">Rol / Ünvan</label>
+                        <input type="text" class="form-control" id="profile-role" required style="padding-left:14px;">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="profile-username">Kullanıcı Adı</label>
+                            <input type="text" class="form-control" id="profile-username" required style="padding-left:14px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="profile-password">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="profile-password" placeholder="Değiştirmek istemiyorsanız boş bırakın" style="padding-left:14px;">
+                        </div>
+                    </div>
+                    <div class="form-group" id="profile-avatar-group" style="display:none; margin-top: 15px;">
+                        <label class="form-label" for="profile-avatar-picker">Profil Fotoğrafı Seçin (Yönetici Onayına Gidecektir)</label>
+                        <input type="file" class="form-control" id="profile-avatar-picker" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 14px; height: auto;">
+                        <input type="hidden" id="profile-avatar-data">
+                        <div id="profile-avatar-preview-container" style="display:none; align-items:center; gap:12px; margin-top:10px; background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; border:1px solid var(--border-color);">
+                            <img id="profile-avatar-preview" src="" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                            <span style="font-size:12px; color:var(--text-muted);">Yeni fotoğraf seçildi. Profilinizi güncellediğinizde onay talebi oluşturulacaktır.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-profile">İptal</button>
+                    <button type="submit" class="btn-primary">Profil Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Personel İşten Çıkarma (Pasife Alma) Modalı -->
+    <div class="modal-overlay" id="modal-terminate">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h3 class="modal-title">Personel İşten Çıkarma</h3>
+                <button class="modal-close-btn" id="modal-terminate-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-terminate-personel">
+                <input type="hidden" id="terminate-emp-id">
+                <div class="modal-body">
+                    <p style="font-size:14px;color:var(--text-main);margin-bottom:16px;" id="terminate-message-text">...</p>
+                    <div class="form-group">
+                        <label class="form-label" for="terminate-date">İşten Ayrılış / Çıkış Tarihi</label>
+                        <input type="date" class="form-control" id="terminate-date" required style="padding-left:14px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-terminate">Vazgeç</button>
+                    <button type="submit" class="btn-primary" style="background:var(--alert-gradient);">İşten Çıkar (Pasife Al)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Günlük Puantaj Detay Modalı -->
+    <div class="modal-overlay" id="modal-puantaj-day">
+        <div class="modal-content-wrapper" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="puantaj-day-title">Günlük Detay Düzenle</h3>
+                <button class="modal-close-btn" id="modal-puantaj-day-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-puantaj-day">
+                <input type="hidden" id="puantaj-day-emp-id">
+                <input type="hidden" id="puantaj-day-date">
+                <div class="modal-body">
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;" id="puantaj-day-subtitle">...</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="puantaj-day-status">Çalışma Durumu</label>
+                        <select class="filter-select" id="puantaj-day-status" style="width:100%">
+                            <option value="">Seçilmemiş (Boş Gün)</option>
+                            <option value="Ç">Çalışıyor (Normal Gün)</option>
+                            <option value="İ">İzinli (Yıllık/Mazeret)</option>
+                            <option value="R">Raporlu (Sağlık/İSG)</option>
+                            <option value="D">Devamsız (Eksik Gün)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="puantaj-overtime-group">
+                        <label class="form-label" for="puantaj-day-overtime">Fazla Mesai Süresi (Saat)</label>
+                        <input type="number" class="form-control" id="puantaj-day-overtime" placeholder="0" min="0" max="8" value="0" style="padding-left:14px;">
+                        <span style="font-size:11px;color:var(--text-muted);display:block;margin-top:4px;">Günde maksimum 8 saat fazla mesai girilebilir.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-puantaj-day">İptal</button>
+                    <button type="submit" class="btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. İzinli Personel Detay Modalı -->
+    <div class="modal-overlay" id="modal-active-leaves">
+        <div class="modal-content-wrapper" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Aktif İzinli Personel Listesi</h3>
+                <button class="modal-close-btn" id="modal-active-leaves-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:15px;">Şu an sistemde aktif olarak izinli/raporlu olan personellerin detayları</p>
+                <div class="personel-table-container active" style="border:none;background:transparent;backdrop-filter:none;box-shadow:none;margin-top:0;max-height: 400px;overflow-y:auto;">
+                    <table class="personel-table" style="font-size:13px;width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Personel</th>
+                                <th>Departman</th>
+                                <th>İzin Türü</th>
+                                <th>İzin Aralığı</th>
+                                <th style="text-align:center;">Bu Ay (Gün)</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-leaves-modal-table-body">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="btn-close-active-leaves">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Simulated Email Notification Modal -->
+    <div class="modal-overlay" id="modal-email-simulation">
+        <div class="modal-content-wrapper" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" style="display:flex;align-items:center;gap:8px;">
+                    <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:var(--secondary);stroke-width:2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    E-posta Gönderim Simülasyonu
+                </h3>
+                <button class="modal-close-btn" id="modal-email-simulation-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:8px;padding:16px;font-family:'Courier New', monospace;font-size:13px;color:var(--text-main);line-height:1.6;overflow-x:auto;">
+                    <div><strong>Kime:</strong> <span id="sim-email-to">...</span></div>
+                    <div><strong>Kimden:</strong> ik@gulnasinsaat.com (GÜLNAS İNŞAAT İK)</div>
+                    <div><strong>Konu:</strong> GÜLNAS İNŞAAT İK - Sistem Giriş Bilgileriniz</div>
+                    <hr style="border:none;border-top:1px solid var(--border-color);margin:12px 0;">
+                    <p>Sayın <strong id="sim-email-name">...</strong>,</p>
+                    <p>GÜLNAS İNŞAAT İnsan Kaynakları yönetim sistemindeki hesabınız oluşturulmuş veya güncellenmiştir. Sisteme giriş bilgileriniz aşağıdadır:</p>
+                    <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:4px;margin:15px 0;">
+                        <div>Giriş Paneli: <a href="#" style="color:var(--secondary);text-decoration:underline;">https://ik.gulnasinsaat.com/login</a></div>
+                        <div>Kullanıcı Adı (E-posta / T.C.): <strong id="sim-email-user">...</strong></div>
+                        <div>Şifre: <strong id="sim-email-pass">...</strong></div>
+                    </div>
+                    <p>Mobil cihazlarınızdan kolay erişim sağlamak için aşağıdaki bağlantılardan mobil uygulamamızı indirebilirsiniz:</p>
+                    <div style="display:flex;gap:12px;margin:15px 0;">
+                        <a href="#" style="background:#000;color:#fff;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:11px;font-family:sans-serif;font-weight:600;display:flex;align-items:center;gap:6px;border:1px solid #333;">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,22C14.32,22.05 13.89,21.24 12.37,21.24C10.84,21.24 10.37,22 9.09,22.05C7.79,22.1 6.8,20.77 5.96,19.58C4.25,17.12 2.94,12.56 4.7,9.53C5.57,8.03 7.12,7.08 8.8,7.05C10.08,7.03 11.28,7.9 12.07,7.9C12.85,7.9 14.3,6.86 15.82,7C16.46,7.03 18.25,7.26 19.41,8.96C19.32,9 17.16,10.26 17.19,12.8C17.22,15.86 19.86,16.89 19.9,16.9C19.88,16.96 19.47,18.38 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg>
+                            App Store (iOS)
+                        </a>
+                        <a href="#" style="background:#000;color:#fff;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:11px;font-family:sans-serif;font-weight:600;display:flex;align-items:center;gap:6px;border:1px solid #333;">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M5,3L19,12L5,21V3M7,5.97V18.03L16.37,12L7,5.97Z"/></svg>
+                            Play Store (Android)
+                        </a>
+                    </div>
+                    <p style="margin-bottom:0;">Saygılarımızla,<br><strong>GÜLNAS İNŞAAT İK Departmanı</strong></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" id="btn-close-email-simulation" style="justify-content:center;width:100%;">E-postayı Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Announcement Creation Modal -->
+    <div class="modal-overlay" id="modal-announcement">
+        <div class="modal-content-wrapper" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Yeni Duyuru Yayınla</h3>
+                <button class="modal-close-btn" id="modal-announcement-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-announcement">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="announcement-title">Duyuru Başlığı</label>
+                        <input type="text" class="form-control" id="announcement-title" placeholder="Örn: Bayram Tatili Hakkında" required style="padding-left:14px;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="announcement-content">Duyuru İçeriği</label>
+                        <textarea class="form-control textarea-control" id="announcement-content" placeholder="Duyuru detaylarını yazınız..." required style="padding-left:14px; height:120px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-cancel-announcement">Vazgeç</button>
+                    <button type="submit" class="btn-primary">Yayınla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 10. Supabase Configuration Modal -->
+    <div class="modal-overlay" id="modal-firebase-config">
+        <div class="modal-content-wrapper" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: var(--secondary); stroke-width: 2;">
+                        <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                    </svg>
+                    Supabase Bulut Senkronizasyonu Kurulumu
+                </h3>
+                <button class="modal-close-btn" id="modal-firebase-config-close">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="form-firebase-config">
+                <div class="modal-body">
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                        Uygulamanın tüm cihazlarda anlık senkronize çalışması için <strong>Supabase</strong> projenizi buraya bağlayabilirsiniz.
+                    </p>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                        <strong>SQL Editor Kurulumu:</strong><br>
+                        Uygulamanın çalışabilmesi için Supabase panelinizdeki <strong>SQL Editor</strong> kısmına gidip size verdiğimiz SQL script'ini çalıştırmanız gerekmektedir.
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supabase-url">Supabase Proje URL (Project URL)</label>
+                        <input type="text" class="form-control" id="supabase-url" value="https://hzmxcntpvcyybocpjsrc.supabase.co" required style="padding-left:14px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="firebase-config-json">Supabase Anon Key (Public API Key)</label>
+                        <textarea class="form-control textarea-control" id="firebase-config-json" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required style="padding-left:14px; height:80px; font-family: monospace; font-size: 11px;"></textarea>
+                    </div>
+
+                    <div id="firebase-connection-status" style="margin-top: 10px; font-size: 12px; display: none; padding: 8px 12px; border-radius: 4px;"></div>
+                </div>
+                <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <button type="button" class="btn-danger-outline" id="btn-disconnect-firebase" style="display: none; padding: 8px 12px; font-size: 12px;">Bağlantıyı Kes</button>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-secondary" id="btn-cancel-firebase-config">Vazgeç</button>
+                        <button type="submit" class="btn-primary" id="btn-save-firebase-config">Bağlantıyı Kur ve Eşitle</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. Resmi Yazdırılabilir Bordro Şablonu (Yazdırma modunda görünür, ekranda gizlidir) -->
+    <div id="print-payroll-area" style="display: none;">
+        <!-- Dynamic table populated by app.js -->
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
