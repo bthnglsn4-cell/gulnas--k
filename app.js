@@ -1356,6 +1356,58 @@ function initPuantajDefaultData() {
     saveState();
 }
 
+// --- YENİ YARDIMCI FONKSİYONLAR: TARİH BAZLI PERSONEL VE MAAŞ HESAPLAMA ---
+function showEmployeeInMonth(emp, year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const lastDayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+    
+    const hireDate = emp.hireDate || "";
+    const termDate = emp.terminationDate || "";
+    
+    // İşe giriş tarihi seçilen ayın son gününden küçük veya eşit olmalı
+    // Ve durumu pasif değilse, ya da pasifse işten çıkış tarihi seçilen ayın ilk gününden büyük veya eşit olmalı
+    const wasEmployed = (hireDate <= lastDayStr) && (emp.status !== "passive" || !termDate || termDate >= firstDayStr);
+    
+    // Güvenlik önlemi: Eğer çalışanın o aya ait herhangi bir puantaj kaydı varsa da göster
+    const currentMonthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const hasAttendance = state.attendance[emp.id] && Object.keys(state.attendance[emp.id]).some(dateStr => dateStr.startsWith(currentMonthPrefix));
+    
+    return wasEmployed || hasAttendance;
+}
+
+function getCalculatedSalaryForMonth(emp, year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const currentMonthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
+    let countWork = 0;
+    let countLeave = 0;
+    let countReport = 0;
+    let countAbsent = 0;
+    let totalOvertimeHours = 0;
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentMonthPrefix}-${String(day).padStart(2, '0')}`;
+        const info = getAttendanceInfo(emp.id, dateStr);
+        
+        if (info.status === "Ç") countWork++;
+        else if (info.status === "İ") countLeave++;
+        else if (info.status === "R") countReport++;
+        else if (info.status === "D") countAbsent++;
+        
+        totalOvertimeHours += info.overtimeHours;
+    }
+    
+    const workedDaysCount = countWork + countLeave + countReport;
+    const netBase = emp.salary || 0;
+    const dailyWage = netBase / 30;
+    const baseEarned = Math.min(netBase, workedDaysCount * dailyWage);
+    const overtimePay = totalOvertimeHours * (emp.overtimeRate || 250);
+    const earnedSalary = Math.max(0, Math.round(baseEarned + overtimePay));
+    
+    return earnedSalary;
+}
+
 // --- TARİH VE GÜN HESAPLAMA MOTORU ---
 function calculateWorkedDays(hireDateStr, terminationDateStr) {
     if (!hireDateStr) return 0;
@@ -1461,9 +1513,10 @@ function renderDashboard() {
     let totalWorkDays = 0;
     let totalOvertimeHours = 0;
     const currentMonthPrefix = `${currentPuantajYear}-${String(currentPuantajMonth + 1).padStart(2, '0')}`;
+    const currentMonthEmployees = state.employees.filter(e => showEmployeeInMonth(e, currentPuantajYear, currentPuantajMonth));
     
     Object.entries(state.attendance).forEach(([empId, empAttendance]) => {
-        const emp = activeEmployees.find(e => e.id === empId);
+        const emp = currentMonthEmployees.find(e => e.id === empId);
         if (emp) {
             Object.entries(empAttendance).forEach(([dateStr, record]) => {
                 if (dateStr.startsWith(currentMonthPrefix)) {
@@ -1481,24 +1534,26 @@ function renderDashboard() {
     document.getElementById("stat-timesheet-hours").textContent = (totalWorkDays * 8) + totalOvertimeHours;
 
     // --- DINAMIK MAAŞ HESAPLAMA (DASHBOARD FINANSAL KARTLARI) ---
-    // 1. Gelecek Ay Ödenecek Toplam Hakediş (Gelecek ay aktif olan çalışanların Net Maaşları + Bu ayki fazla mesai ödemeleri varsayımıyla hakediş)
+    // 1. Bu Ay Ödenecek Toplam Maaş (Puantajdan çekilir)
     let futureSalaryTotal = 0;
-    activeEmployees.forEach(emp => {
-        let empMonthlyOvertime = 0;
-        const empAttendance = state.attendance[emp.id] || {};
-        Object.entries(empAttendance).forEach(([dateStr, record]) => {
-            if (dateStr.startsWith(currentMonthPrefix)) {
-                const info = getAttendanceInfo(emp.id, dateStr);
-                empMonthlyOvertime += info.overtimeHours;
-            }
-        });
-        const overtimePay = empMonthlyOvertime * (emp.overtimeRate || 250);
-        futureSalaryTotal += (emp.salary || 0) + overtimePay;
+    currentMonthEmployees.forEach(emp => {
+        futureSalaryTotal += getCalculatedSalaryForMonth(emp, currentPuantajYear, currentPuantajMonth);
     });
     document.getElementById("stat-salary-estimate").textContent = futureSalaryTotal.toLocaleString("tr-TR") + " TL";
 
-    // 2. Son Ay Ödenen Maaş: Sistemdeki tüm personellerin (pasifler dahil) net maaş toplamı
-    const pastSalaryTotal = state.employees.reduce((sum, emp) => sum + (emp.salary || 0), 0);
+    // 2. Son Ay Ödenen Maaş: Bir önceki ayın puantaj cetvelindeki net hakedişlerin ve mesai ödemelerinin toplamı
+    let prevMonth = currentPuantajMonth - 1;
+    let prevYear = currentPuantajYear;
+    if (prevMonth < 0) {
+        prevMonth = 11;
+        prevYear = currentPuantajYear - 1;
+    }
+    let pastSalaryTotal = 0;
+    state.employees.forEach(emp => {
+        if (showEmployeeInMonth(emp, prevYear, prevMonth)) {
+            pastSalaryTotal += getCalculatedSalaryForMonth(emp, prevYear, prevMonth);
+        }
+    });
     document.getElementById("stat-salary-paid").textContent = pastSalaryTotal.toLocaleString("tr-TR") + " TL";
 
     // Bildirim Listesi Render
@@ -2164,10 +2219,10 @@ function renderPuantaj() {
     headerRow.innerHTML = headerHtml;
     bodyContainer.innerHTML = "";
     
-    const activeEmployees = state.employees.filter(e => e.status !== "passive");
+    const activeEmployees = state.employees.filter(e => showEmployeeInMonth(e, currentPuantajYear, currentPuantajMonth));
 
     if (activeEmployees.length === 0) {
-        bodyContainer.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">Puantaj cetveli için aktif çalışan bulunmuyor.</td></tr>`;
+        bodyContainer.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">Puantaj cetveli için bu ay çalışan bulunmuyor.</td></tr>`;
         return;
     }
 
@@ -2788,9 +2843,9 @@ function populateBordroEmployeeSelect() {
 }
 
 function printPayrollSlip() {
-    const activeEmployees = state.employees.filter(e => e.status !== "passive");
+    const activeEmployees = state.employees.filter(e => showEmployeeInMonth(e, currentPuantajYear, currentPuantajMonth));
     if (activeEmployees.length === 0) {
-        alert("Bordro yazdırmak için sistemde aktif personel bulunmuyor!");
+        alert("Bordro yazdırmak için bu ay çalışan personel bulunmuyor!");
         return;
     }
     
@@ -3070,14 +3125,6 @@ function closeProfileModal() {
 function setupEventListeners() {
     document.getElementById("form-login").addEventListener("submit", handleLogin);
     document.getElementById("btn-logout").addEventListener("click", handleLogout);
-
-    const btnLoginCloud = document.getElementById("btn-login-cloud-config");
-    if (btnLoginCloud) {
-        btnLoginCloud.addEventListener("click", () => {
-            const btnCloudStatus = document.getElementById("btn-cloud-status");
-            if (btnCloudStatus) btnCloudStatus.click();
-        });
-    }
 
     document.getElementById("user-profile-header").addEventListener("click", openProfileModal);
     document.getElementById("modal-profile-close").addEventListener("click", closeProfileModal);
@@ -3482,6 +3529,8 @@ function setupEventListeners() {
                 
                 if (status !== "passive") {
                     delete emp.terminationDate;
+                } else if (!emp.terminationDate) {
+                    emp.terminationDate = new Date().toISOString().split('T')[0];
                 }
                 emp.status = status;
 
