@@ -331,6 +331,7 @@ let supabaseInitialized = false;
 let supabaseClient = null;
 let supabaseChannel = null;
 let isSyncing = false;
+let supabaseSyncTimeout = null;
 
 function saveState() {
     localStorage.setItem("gl_employees", JSON.stringify(state.employees));
@@ -340,10 +341,26 @@ function saveState() {
     localStorage.setItem("gl_manager", JSON.stringify(state.manager));
     localStorage.setItem("gl_announcements", JSON.stringify(state.announcements));
     
-    if (supabaseInitialized && supabaseClient && !isSyncing) {
-        saveStateToSupabase();
+    if (supabaseInitialized && supabaseClient) {
+        if (supabaseSyncTimeout) {
+            clearTimeout(supabaseSyncTimeout);
+        }
+        supabaseSyncTimeout = setTimeout(() => {
+            if (!isSyncing) {
+                saveStateToSupabase();
+            }
+        }, 2000);
     }
 }
+
+window.addEventListener("beforeunload", () => {
+    if (supabaseSyncTimeout) {
+        clearTimeout(supabaseSyncTimeout);
+        if (supabaseInitialized && supabaseClient && !isSyncing) {
+            saveStateToSupabase();
+        }
+    }
+});
 
 function initSupabase(url, anonKey) {
     if (!url || !anonKey) return false;
@@ -1357,6 +1374,14 @@ function initPuantajDefaultData() {
 }
 
 // --- YENİ YARDIMCI FONKSİYONLAR: TARİH BAZLI PERSONEL VE MAAŞ HESAPLAMA ---
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 function showEmployeeInMonth(emp, year, month) {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
@@ -3261,7 +3286,7 @@ function setupEventListeners() {
         renderIzinModule();
     });
 
-    document.getElementById("personel-search").addEventListener("input", renderPersonelList);
+    document.getElementById("personel-search").addEventListener("input", debounce(renderPersonelList, 250));
     document.getElementById("personel-dept-filter").addEventListener("change", renderPersonelList);
 
     document.getElementById("btn-add-personel").addEventListener("click", () => openPersonelModal(false));
@@ -3337,7 +3362,7 @@ function setupEventListeners() {
         renderDashboard(); // Aylık mesai saatini ve bakedilen maaş toplamını anlık güncelle
     });
 
-    document.getElementById("ozluk-search").addEventListener("input", renderOzlukEmployeeList);
+    document.getElementById("ozluk-search").addEventListener("input", debounce(renderOzlukEmployeeList, 250));
 
     document.getElementById("modal-upload-close").addEventListener("click", closeUploadModal);
     document.getElementById("btn-cancel-upload").addEventListener("click", closeUploadModal);

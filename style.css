@@ -61,7 +61,11 @@ body.light-theme {
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Specific transition styles to optimize performance on mobile */
+body, .sidebar, .card, .btn-primary, .btn-secondary, .form-control, .mobile-bottom-nav a, .mobile-fab, .tab-button, .request-card {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 body {
@@ -2538,6 +2542,12 @@ body.light-theme .cloud-status-btn:hover {
 /* Force Supabase Configuration modal above the login overlay */
 #modal-firebase-config {
     z-index: 1000000 !important;
+}
+
+/* GPU Acceleration for smooth mobile scrolling and transitions */
+.puantaj-days-row, .modal, .mobile-bottom-nav, .mobile-fab, .card, .employee-list-item, .request-card {
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
 }
 
 
