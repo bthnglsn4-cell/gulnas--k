@@ -1,5 +1,9 @@
 // GÜLNAS İK - Uygulama Mantığı (app.js)
 
+// --- OTOMATİK BULUT SENKRONİZASYONU AYARLARI ---
+const AUTO_SUPABASE_URL = "https://hzmxcntpvcyybocpjsrc.supabase.co";
+const AUTO_SUPABASE_KEY = "sb_publishable_Vu9HIEiTeq8xFKv2JIeoEA_kEo92mnH"; // Lütfen bu tırnakların arasına Supabase Anon Key'inizi yapıştırın.
+
 // --- GENDER-SPECIFIC DEFAULT SVG PLACEHOLDERS ---
 const maleSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#cbd5e1"/><circle cx="50" cy="40" r="20" fill="#475569"/><path d="M50 65c-22 0-30 15-30 15v10h60v-10s-8-15-30-15z" fill="#475569"/></svg>`;
 const femaleSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#cbd5e1"/><path d="M50 17c-13 0-21 8-21 21v12c0 2 1 4 3 5l2 3v7c-7 2-12 7-12 7v18h56v-18s-5-5-12-7v-7l2-3c2-1 3-3 3-5v-12c0-13-8-21-21-21z" fill="#475569"/><circle cx="50" cy="40" r="17" fill="#cbd5e1"/><path d="M50 54v11" stroke="#cbd5e1" stroke-width="6"/><path d="M29 38c0-13 8-21 21-21s21 8 21 21c0 3-1 6-2 8-3-6-9-10-19-10s-16 4-19 10c-1-2-2-5-2-8z" fill="#475569"/></svg>`;
@@ -800,9 +804,18 @@ window.deleteAnnouncement = deleteAnnouncement;
 
 document.addEventListener("DOMContentLoaded", () => {
     // Supabase startup
-    const storedUrl = localStorage.getItem("gl_supabase_url");
-    const storedKey = localStorage.getItem("gl_supabase_key");
+    const storedUrl = localStorage.getItem("gl_supabase_url") || AUTO_SUPABASE_URL;
+    const storedKey = localStorage.getItem("gl_supabase_key") || AUTO_SUPABASE_KEY;
+    
     if (storedUrl && storedKey) {
+        // Automatically save to local storage if not already set, so all configuration logic works
+        if (!localStorage.getItem("gl_supabase_url")) {
+            localStorage.setItem("gl_supabase_url", storedUrl);
+        }
+        if (!localStorage.getItem("gl_supabase_key")) {
+            localStorage.setItem("gl_supabase_key", storedKey);
+        }
+        
         if (initSupabase(storedUrl, storedKey)) {
             startRealTimeSync();
         }
